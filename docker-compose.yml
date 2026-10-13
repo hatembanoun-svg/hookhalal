@@ -1,0 +1,16 @@
+services:
+  hookhalal:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATA_DIR=/data
+      - OLLAMA_URL=${OLLAMA_URL:-http://host.docker.internal:11434/v1}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - hookhalal-data:/data
+volumes:
+  hookhalal-data:
