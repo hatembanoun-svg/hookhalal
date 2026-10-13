@@ -77,16 +77,16 @@ export async function generateHooks(opts: {
     model: process.env.OLLAMA_MODEL || "llama3.1",
   });
 
-  let lastErr: unknown;
+  const errs: string[] = [];
+  if (!groqKey) errs.push("Groq: no key received (GROQ_KEY missing, or the site was not redeployed after adding it)");
   for (const cfg of providers) {
+    const name = cfg.key ? "Groq" : "Ollama";
     try {
       const text = await callChat(cfg, opts.product, opts.idea, opts.halal);
       return parse(text, opts.halal);
     } catch (err) {
-      lastErr = err;
+      errs.push(`${name}: ${(err as Error).message}`);
     }
   }
-  throw new Error(
-    `No LLM available. Add a free Groq key or start Ollama. (${(lastErr as Error)?.message ?? ""})`
-  );
+  throw new Error(`No LLM available. ${errs.join(" | ")}`);
 }
